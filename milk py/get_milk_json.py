@@ -38,7 +38,15 @@ def grava_sobes3_arquivo_json_lapidado(
     if retorno != True:
         print(retorno)
         print('bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
-                ' --- ' + retorno + ' ***** não foi carregado')    
+                ' --- ' + retorno + ' ***** não foi carregado')   
+
+    retorno = ups3.upload_s3(
+            s3_dados_processed_permanente, nome_arquivo, pathJson, access_key, secret_key, regiao)
+
+    if retorno != True:
+        print(retorno)
+        print('bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
+                ' --- ' + retorno + ' ***** não foi carregado')                  
 
     return retorno """
 
@@ -55,6 +63,7 @@ def lambda_handler(event, context):
     user, password = my_credentials["user"], my_credentials["password"]
     access_key, secret_key = my_credentials["access_key"], my_credentials["secret_key"]
     region, s3_dados_processed = my_credentials["region"], my_credentials["mk-s3-milk-json"]
+    s3_dados_processed_permanente = my_credentials["mk-s3-milk-json-permanente"]
     imap_url, dirAux = my_credentials["url_imap"], my_credentials["dirAux"]
 
     # conecta gmail
@@ -205,7 +214,7 @@ def lambda_handler(event, context):
         nome_arquivo = nome_arquivo.replace('.', '_')
         retorno = grava_sobes3_arquivo_json_lapidado(
                     dirAux, nome_arquivo, df, s3_dados_processed, 
-                    access_key, secret_key, region)
+                    access_key, secret_key, region)       
 
         if retorno == True:
             mail_ids = []
