@@ -18,21 +18,6 @@ def lambda_handler(event, context):
     region, s3_dados_processed = my_credentials["region"], my_credentials["mk-s3-milk-json"]
     dirAux = my_credentials["dirAux"]
 
-
-
-
-    #path_arquivo='arquivos_criados/milk_2023-06-05_135628_160173.json'
-    #df = pd.read_json(path_arquivo, encoding='utf-8-sig')
-
-    #print(df)
-
-    #print(df.count)
-
-    #exit()    
-
-
-
-
     # le lista de arquivos buckets3
     retorno = lists3.list_objects_buckets3(s3_dados_processed, secret_key, access_key) 
     if retorno[0][0:6] == 'false':
@@ -41,7 +26,7 @@ def lambda_handler(event, context):
         
     linhas= retorno.count
     if len(linhas) == 0:
-        print('não foi encontrado nenhum .json no buckets3')
+        print('não foi encontrado nenhum .json no bucket s3')
         exit()
 
     i=0
@@ -64,11 +49,10 @@ def lambda_handler(event, context):
 
         retorno = dels3.delete_s3(s3_dados_processed, 
                                     nome_arquivo, 
-                                    path_arquivo, 
                                     access_key, 
                                     secret_key, 
                                     region)            
-
+        
         i+=1               
 
 lambda_handler(1, 1)                            
