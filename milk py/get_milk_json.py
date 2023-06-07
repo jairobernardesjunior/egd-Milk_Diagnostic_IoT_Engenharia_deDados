@@ -50,6 +50,29 @@ def grava_sobes3_arquivo_json_lapidado(
 
     return retorno """
 
+def verifica_nro(campo):
+    i=0
+    while i<len(campo):
+        if campo[i] not in ['-','.','0','1','2','3','4','5','6','7','8','9']:
+            if i==0:
+                c1=''
+            else:
+                c1=campo[0:i-1]
+
+            ii=i+1          
+            if ii<len(campo):
+                c2=campo[ii:len(campo)-1]
+            else:
+                c2=''
+
+            campo=c1 + '0' + c2
+
+        i+=1
+
+    print(campo)
+
+    return campo
+
 def lambda_handler(event, context):
 # ******************** INÍCIO
 
@@ -139,7 +162,7 @@ def lambda_handler(event, context):
                         pos=body_aux.find('r1p')
                         body_aux= body[pos:3000]
 
-                        #print(body_aux)
+                        print(body_aux)
                         #print(body_aux[0:2])
                         #print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")     
                                
@@ -153,9 +176,11 @@ def lambda_handler(event, context):
                                 campo= body_aux[0:pos]
 
                                 #print(campo)
+                                if i>2:
+                                    campo=verifica_nro(campo)
 
                                 match i:
-                                    case 0:
+                                    case 0:                               
                                         cod_produtor.append(campo)
                                     case 1:
                                         datax.append(campo)
