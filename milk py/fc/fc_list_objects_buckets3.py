@@ -21,6 +21,6 @@ def list_objects_buckets3(bucket_name, secret_key, access_key):
 
     except ClientError as e:
         #print(e)
-        df.append('false ' + e.response['Error'])
+        df.append('erro ' + e.response['Error'])
         
     return df

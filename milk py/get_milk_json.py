@@ -20,14 +20,24 @@ import pandas as pd
 from fc import fc_upload_s3 as ups3
 
 def grava_sobes3_arquivo_json_lapidado(
-        dirAux, nome_arquivo, df, s3_dados_processed, access_key, secret_key, regiao):
+        dirAux, nome_arquivo, df, s3_dados_processed, 
+        s3_dados_processed_permanente, access_key, secret_key, regiao,
+        url_imapx, portax, remetentex, passwx, destinatariox):
 
-    nome_arquivo = nome_arquivo + '.json'
-    pathJson = dirAux + '/' + nome_arquivo
+    try:
+        nome_arquivo = nome_arquivo + '.json'
+        pathJson = dirAux + '/' + nome_arquivo
 
-    df.to_json(pathJson)
+        df.to_json(pathJson)
+        retorno = True
 
-    return True
+    except Exception as Error:
+        retorno = Error
+        print(retorno) 
+        texto=retorno
+        subject="Erro ao gravar arquivo na pasta -> " + nome_arquivo
+        email.envia_email(url_imapx, portax, remetentex, passwx, destinatariox, texto, subject)             
+        exit()         
 
     """
 
@@ -37,18 +47,21 @@ def grava_sobes3_arquivo_json_lapidado(
 
     if retorno != True:
         print(retorno)
-        print('bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
-                ' --- ' + retorno + ' ***** não foi carregado')   
+        texto = 'bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
+                ' --- ' + retorno + ' ***** não foi carregado'   
 
     retorno = ups3.upload_s3(
             s3_dados_processed_permanente, nome_arquivo, pathJson, access_key, secret_key, regiao)
 
     if retorno != True:
         print(retorno)
-        print('bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
-                ' --- ' + retorno + ' ***** não foi carregado')                  
+        texto = 'bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
+                ' --- ' + retorno + ' ***** não foi carregado'
+        subject="Erro ao carregar o arquivo no buckets3 -> " + s3_dados_processed
+        email.envia_email(url_imapx, portax, remetentex, passwx, destinatariox, texto, subject) 
 
-    return retorno """
+    """
+    return retorno    
 
 def verifica_nro(campo):
     i=0
@@ -88,6 +101,9 @@ def lambda_handler(event, context):
     region, s3_dados_processed = my_credentials["region"], my_credentials["mk-s3-milk-json"]
     s3_dados_processed_permanente = my_credentials["mk-s3-milk-json-permanente"]
     imap_url, dirAux = my_credentials["url_imap"], my_credentials["dirAux"]
+    url_imapx, portax = my_credentials["url_imap"], my_credentials["porta"]
+    remetentex, passwx = my_credentials["user"], my_credentials["password"]
+    destinatariox = my_credentials["destinatario"]     
 
     # conecta gmail
     my_mail = imaplib.IMAP4_SSL(imap_url)
@@ -238,8 +254,9 @@ def lambda_handler(event, context):
         nome_arquivo = nome_arquivo.replace(':', '')
         nome_arquivo = nome_arquivo.replace('.', '_')
         retorno = grava_sobes3_arquivo_json_lapidado(
-                    dirAux, nome_arquivo, df, s3_dados_processed, 
-                    access_key, secret_key, region)       
+                    dirAux, nome_arquivo, df, s3_dados_processed, s3_dados_processed_permanente,
+                    access_key, secret_key, region,
+                    url_imapx, portax, remetentex, passwx, destinatariox)       
 
         if retorno == True:
             mail_ids = []
@@ -258,6 +275,10 @@ def lambda_handler(event, context):
 
     else:
         print("+++++ Email sem dados")
-        print (my_msg)                
+        print (my_msg) 
+        texto=my_msg
+        subject="+++++ Email sem dados -> " + nome_arquivo
+        email.envia_email(url_imapx, portax, remetentex, passwx, destinatariox, texto, subject)             
+        exit()                         
 
 lambda_handler(1, 1)                            
