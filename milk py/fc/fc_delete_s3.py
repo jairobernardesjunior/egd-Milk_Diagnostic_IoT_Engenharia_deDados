@@ -9,14 +9,9 @@ def delete_s3(nome_buckets3, keyname, access_key, secret_key, regiao):
         region_name= regiao # voce pode usar qualquer regiao
         ) 
 
-    retorno = False
-
     try:
-        s3_client = boto3.client('s3')
-        response = s3_client.delete_object(Bucket=nome_buckets3,Key=keyname)
-        retorno = True
+        client.delete_object(Bucket=nome_buckets3, Key=keyname)
+        return ''
         
     except ClientError as e:
-        retorno = e.response['Error']   
-
-    return retorno
+        return 'Erro - ' + str(e)

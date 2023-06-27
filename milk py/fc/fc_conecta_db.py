@@ -2,15 +2,12 @@
 import psycopg2
 
 def conecta_db(hostx, databasex, userx, passwordx):
-  retorno=False
-
   try:
     con = psycopg2.connect(host= hostx, 
                           database= databasex,
                           user= userx, 
                           password= passwordx)
-    retorno=con
+    return con
+  
   except Exception as error:
-    retorno= 'Erro - ' + error
-
-  return retorno
+    return 'Erro - ' + str(error)

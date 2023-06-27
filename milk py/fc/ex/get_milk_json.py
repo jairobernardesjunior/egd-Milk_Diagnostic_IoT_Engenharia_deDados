@@ -30,47 +30,39 @@ def grava_sobes3_arquivo_json_lapidado(
         pathJson = dirAux + '/' + nome_arquivo
 
         df.to_json(pathJson)
-        retorno = ''
+        retorno = True
 
     except Exception as Error:
         retorno=str(Error)
         texto=retorno
-        data_e_hora_atuais = datetime.datetime.now()
-        data_e_hora_em_texto = data_e_hora_atuais.strftime('%d/%m/%Y %H:%M')        
-        subject="Erro ao gravar arquivo na pasta -> " + nome_arquivo + " em " + data_e_hora_em_texto
+        subject="Erro ao gravar arquivo na pasta -> " + nome_arquivo
         envmail.envia_email(url_imapx, portax, remetentex, password_remetentex, destinatariox, texto, subject)             
         exit()         
 
+    """
     # ******************** CARREGA ARQUIVO json NO BUCKET S3
     retorno = ups3.upload_s3(
             s3_dados_processed, nome_arquivo, pathJson, access_key, secret_key, region)
 
-    retorno=str(retorno)
-        
-    if retorno[0:4] == 'Erro':
+    if retorno != True:
         print(retorno)
-        texto = 'bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + \
-                ' --- ' + retorno + ' ***** não foi carregado'
-        data_e_hora_atuais = datetime.datetime.now()
-        data_e_hora_em_texto = data_e_hora_atuais.strftime('%d/%m/%Y %H:%M')  
-        subject="Erro ao carregar o arquivo no buckets3 -> " + s3_dados_processed_permanente + " em " + data_e_hora_em_texto
+        texto = 'bucket s3 => ' + s3_dados_processed + ' arquivo => ' + nome_arquivo + 
+                ' --- ' + retorno + ' ***** não foi carregado'  
+        subject="Erro ao carregar o arquivo no buckets3 -> " + s3_dados_processed_permanente
         email.envia_email(url_imapx, portax, remetentex, password_remetentex, destinatariox, texto, subject) 
 
 
     retorno = ups3.upload_s3(
             s3_dados_processed_permanente, nome_arquivo, pathJson, access_key, secret_key, region)
 
-    retorno=str(retorno)
-        
-    if retorno[0:4] == 'Erro':
+    if retorno != True:
         print(retorno)
-        texto = 'bucket s3 => ' + s3_dados_processed_permanente + ' arquivo => ' + nome_arquivo + \
+        texto = 'bucket s3 => ' + s3_dados_processed_permanente + ' arquivo => ' + nome_arquivo + 
                 ' --- ' + retorno + ' ***** não foi carregado'
-        data_e_hora_atuais = datetime.datetime.now()
-        data_e_hora_em_texto = data_e_hora_atuais.strftime('%d/%m/%Y %H:%M')
-        subject="Erro ao carregar o arquivo no buckets3 -> " + s3_dados_processed_permanente + " em " + data_e_hora_em_texto
+        subject="Erro ao carregar o arquivo no buckets3 -> " + s3_dados_processed_permanente
         email.envia_email(url_imapx, portax, remetentex, password_remetentex, destinatariox, texto, subject) 
 
+    """
     return retorno    
 
 def verifica_nro(campo):
@@ -255,9 +247,7 @@ def lambda_handler(event, context):
 
                             if body_aux[0:2] == 'r2': 
                                 texto = body_aux
-                                data_e_hora_atuais = datetime.datetime.now()
-                                data_e_hora_em_texto = data_e_hora_atuais.strftime('%d/%m/%Y %H:%M')                                
-                                subject="***** Advertência ***** " + body_aux + " em " + data_e_hora_em_texto
+                                subject="***** Advertência ***** " + body_aux
                                 envmail.envia_email(url_imapx, portax, remetentex, password_remetentex, 
                                                   destinatariox, texto, subject)                                
                            
@@ -289,9 +279,7 @@ def lambda_handler(event, context):
                     s3_dados_processed_permanente, access_key, secret_key, region,
                     url_imapx, portax, remetentex, password_remetentex, destinatariox)       
 
-        retorno=str(retorno)
-        
-        if retorno[0:4] != 'Erro':
+        if retorno == True:
             mail_ids = []
 
             for block in search_data:
@@ -304,13 +292,11 @@ def lambda_handler(event, context):
             # movendo os emails para a lixeira
             # este passo é específico do gmail
             # que não permite a exclusão direta
-            #my_mail.store(f'{start}:{end}'.encode(), '+X-GM-LABELS', '\\Trash')                    
+            my_mail.store(f'{start}:{end}'.encode(), '+X-GM-LABELS', '\\Trash')                    
 
     else:
         texto="+++++ Emails sem dados - sem registro r1 "
-        data_e_hora_atuais = datetime.datetime.now()
-        data_e_hora_em_texto = data_e_hora_atuais.strftime('%d/%m/%Y %H:%M')        
-        subject="+++++ Emails sem dados - sem registro r1 " + " em " + data_e_hora_em_texto
+        subject="+++++ Emails sem dados - sem registro r1 "
         envmail.envia_email(url_imapx, portax, remetentex, password_remetentex, destinatariox, texto, subject)             
         exit()                         
 

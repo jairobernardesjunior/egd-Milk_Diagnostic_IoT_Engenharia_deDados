@@ -9,13 +9,10 @@ def upload_s3(nome_buckets3, nome_arquivo, path_arquivo, access_key, secret_key,
         region_name= regiao # voce pode usar qualquer regiao
         ) 
 
-    retorno = False
-
     try:
         client.upload_file(path_arquivo, nome_buckets3, nome_arquivo)  
-        retorno = True
+        return ''
+
     except botocore.exceptions.ClientError as e:
         # if e.response['Error']['Code'] == "404":
-        retorno = e.response['Error']
-
-    return retorno
+        return 'Erro - ' + str(e)
